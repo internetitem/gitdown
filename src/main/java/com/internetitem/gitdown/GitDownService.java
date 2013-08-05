@@ -16,8 +16,7 @@ public class GitDownService extends Service<GitDownConfiguration> {
 
 	@Override
 	public void run(GitDownConfiguration configuration, Environment environment) throws Exception {
-		String repoPath = configuration.getRepoPath();
-		GitHelper gitHelper = new GitHelper(repoPath);
+		GitHelper gitHelper = new GitHelper(configuration);
 		environment.manage(gitHelper);
 		environment.addResource(new GitService(gitHelper));
 	}
