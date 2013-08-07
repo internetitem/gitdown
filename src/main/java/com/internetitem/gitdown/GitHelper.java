@@ -75,12 +75,24 @@ public class GitHelper implements Managed {
 			if (foundFile != null) {
 				type = FileDataType.File;
 			} else {
-				String newName = filename + "/";
-				foundFile = findIndexFile(tree, newName);
-				if (foundFile == null) {
-					return new FileData(null, filename, newName, FileDataType.NotFound);
+				for (String extension : configuration.getMarkdownExtensions()) {
+					String newName = filename + extension;
+					foundFile = findFile(tree, newName);
+					if (foundFile != null) {
+						break;
+					}
+				}
+
+				if (foundFile != null) {
+					type = FileDataType.File;
 				} else {
-					return new FileData(null, filename, newName, FileDataType.Redirect);
+					String newName = filename + "/";
+					foundFile = findIndexFile(tree, newName);
+					if (foundFile == null) {
+						return new FileData(null, filename, newName, FileDataType.NotFound);
+					} else {
+						return new FileData(null, filename, newName, FileDataType.Redirect);
+					}
 				}
 			}
 		}

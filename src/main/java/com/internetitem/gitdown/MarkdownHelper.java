@@ -2,11 +2,15 @@ package com.internetitem.gitdown;
 
 import java.io.UnsupportedEncodingException;
 
+import org.pegdown.Extensions;
+import org.pegdown.LinkRenderer;
 import org.pegdown.PegDownProcessor;
 
 import com.internetitem.gitdown.config.GitDownConfiguration;
 
 public class MarkdownHelper {
+
+	public static final LinkRenderer LINK_RENDERER = new GitdownLinkRenderer();
 
 	private GitDownConfiguration configuration;
 
@@ -30,7 +34,7 @@ public class MarkdownHelper {
 		try {
 			PegDownProcessor pdp = getPegDownProcessor();
 			String source = new String(data, "UTF-8");
-			String result = pdp.markdownToHtml(source);
+			String result = pdp.markdownToHtml(source, LINK_RENDERER);
 			return result.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
@@ -40,9 +44,14 @@ public class MarkdownHelper {
 	private PegDownProcessor getPegDownProcessor() {
 		PegDownProcessor processor = tlProcessor.get();
 		if (processor == null) {
-			processor = new PegDownProcessor();
+			processor = buildPegDownProcessor();
 			tlProcessor.set(processor);
 		}
 		return processor;
+	}
+
+	private PegDownProcessor buildPegDownProcessor() {
+		int options = Extensions.WIKILINKS | Extensions.TABLES | Extensions.AUTOLINKS;
+		return new PegDownProcessor(options);
 	}
 }
