@@ -18,7 +18,8 @@ public class GitDownService extends Service<GitDownConfiguration> {
 	public void run(GitDownConfiguration configuration, Environment environment) throws Exception {
 		GitHelper gitHelper = new GitHelper(configuration);
 		environment.manage(gitHelper);
-		environment.addResource(new GitService(gitHelper));
+		MarkdownHelper markdownHelper = new MarkdownHelper(configuration);
+		environment.addResource(new GitService(gitHelper, markdownHelper));
 	}
 
 }
