@@ -2,8 +2,6 @@ package com.internetitem.gitdown;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -22,26 +20,12 @@ import com.yammer.dropwizard.lifecycle.Managed;
 public class GitHelper implements Managed {
 
 	private GitDownConfiguration configuration;
-	private Set<String> indexFiles;
 
 	private Repository repository;
 
 	public GitHelper(GitDownConfiguration configuration) throws Exception {
 		this.configuration = configuration;
-		this.indexFiles = setupIndexFiles();
 		this.repository = getRepository();
-	}
-
-	private Set<String> setupIndexFiles() {
-		Set<String> indexFiles = new HashSet<>();
-
-		if (configuration.getIndexFiles() != null && !configuration.getIndexFiles().isEmpty()) {
-			indexFiles.addAll(configuration.getIndexFiles());
-		} else {
-			indexFiles.add("index.md");
-		}
-
-		return indexFiles;
 	}
 
 	@Override
