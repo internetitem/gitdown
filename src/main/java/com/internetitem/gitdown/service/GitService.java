@@ -52,7 +52,7 @@ public class GitService {
 			String contentType;
 			if (markdownHelper.isMarkdown(actualName)) {
 				bytes = markdownHelper.convertMarkdown(data.getData());
-				contentType = "text/html";
+				contentType = "text/html; charset=utf-8";
 			} else {
 				bytes = data.getData();
 				contentType = getContentType(actualName);
