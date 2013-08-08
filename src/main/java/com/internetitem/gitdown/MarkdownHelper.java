@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import org.pegdown.Extensions;
 import org.pegdown.LinkRenderer;
 import org.pegdown.PegDownProcessor;
+import org.pegdown.plugins.PegDownPlugins;
 
 import com.internetitem.gitdown.config.GitDownConfiguration;
 
@@ -51,7 +52,8 @@ public class MarkdownHelper {
 	}
 
 	private PegDownProcessor buildPegDownProcessor() {
-		int options = Extensions.WIKILINKS | Extensions.TABLES | Extensions.AUTOLINKS;
-		return new PegDownProcessor(options);
+		int options = Extensions.ALL;
+		PegDownPlugins plugins = PegDownPlugins.builder().withPlugin(GitdownUnlabeledImageRule.class).build();
+		return new PegDownProcessor(options, plugins);
 	}
 }
