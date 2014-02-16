@@ -8,7 +8,7 @@ import org.pegdown.plugins.InlinePluginParser;
 public class GitdownUnlabeledImageRule extends Parser implements InlinePluginParser {
 
 	public GitdownUnlabeledImageRule() {
-		super(ALL, 1000l, DefaultParseRunnerProvider);
+		super(Integer.valueOf(ALL), Long.valueOf(1000), DefaultParseRunnerProvider);
 	}
 
 	@Override
@@ -27,10 +27,10 @@ public class GitdownUnlabeledImageRule extends Parser implements InlinePluginPar
 
     public Rule MaybeEmptyLabel() {
         return Sequence(
-                '[',
-                push(new SuperNode()),
-                ZeroOrMore(TestNot(']'), NonAutoLinkInline(), addAsChild()),
-                ']'
+                Character.valueOf('['),
+                Boolean.valueOf(push(new SuperNode())),
+                ZeroOrMore(TestNot(Character.valueOf(']')), NonAutoLinkInline(), Boolean.valueOf(addAsChild())),
+                Character.valueOf(']')
         );
     }
 
