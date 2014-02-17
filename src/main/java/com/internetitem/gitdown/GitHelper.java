@@ -13,7 +13,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import com.internetitem.gitdown.FileData.FileDataType;
 import com.internetitem.gitdown.config.GitDownConfiguration;
@@ -69,17 +68,37 @@ public class GitHelper implements Managed {
 			foundFile = findIndexFile(tree, filename);
 			if (foundFile == null) {
 				return new FileData(null, filename, null, FileDataType.NotFound);
+			} else {
+				String matchedFile = foundFile.getPathString();
+				String matchedPart = matchedFile.substring(0, filename.length());
+				if (!matchedPart.equals(filename)) {
+					return new FileData(null, filename, matchedPart, FileDataType.Redirect);
+				} else {
+					type = FileDataType.IndexFile;
+				}
 			}
-			type = FileDataType.IndexFile;
 		} else {
 			foundFile = findFile(tree, filename);
 			if (foundFile != null) {
-				type = FileDataType.File;
+				String matchedFile = foundFile.getPathString();
+				// This is how we check if something is a directory
+				if (matchedFile.length() > filename.length() && matchedFile.charAt(filename.length()) == '/') {
+					return new FileData(null, filename, filename + "/", FileDataType.Redirect);
+				} else if (!matchedFile.equals(filename)) {
+					return new FileData(null, filename, matchedFile, FileDataType.Redirect);
+				} else {
+					type = FileDataType.File;
+				}
 			} else {
 				for (String extension : configuration.getMarkdownExtensions()) {
 					String newName = filename + extension;
 					foundFile = findFile(tree, newName);
 					if (foundFile != null) {
+						String actualName = foundFile.getPathString();
+						if (!actualName.equals(newName)) {
+							String redirectTo = actualName.substring(0, actualName.length() - extension.length());
+							return new FileData(null, filename, redirectTo, FileDataType.Redirect);
+						}
 						break;
 					}
 				}
@@ -112,7 +131,7 @@ public class GitHelper implements Managed {
 		TreeWalk treeWalk = new TreeWalk(repository);
 		treeWalk.addTree(tree);
 		treeWalk.setRecursive(true);
-		treeWalk.setFilter(PathFilter.create(filename));
+		treeWalk.setFilter(new GitFileFilter(configuration.isCaseSensitive(), filename));
 		if (!treeWalk.next()) {
 			return null;
 		}

@@ -21,6 +21,8 @@ public class GitDownConfiguration extends Configuration {
 
 	@NotEmpty
 	private List<String> markdownExtensions;
+	
+	private boolean caseSensitive;
 
 	public String getRepoPath() {
 		return repoPath;
@@ -36,5 +38,9 @@ public class GitDownConfiguration extends Configuration {
 
 	public List<String> getMarkdownExtensions() {
 		return markdownExtensions;
+	}
+
+	public boolean isCaseSensitive() {
+		return caseSensitive;
 	}
 }
