@@ -43,7 +43,7 @@ public class GitService {
 		case NotFound:
 			return Response.status(Status.NOT_FOUND).build();
 		case Redirect:
-			Response.status(Status.MOVED_PERMANENTLY).location(new URI(data.getActualName())).build();
+			return Response.status(Status.MOVED_PERMANENTLY).location(new URI(data.getActualName())).build();
 		case File:
 		case IndexFile:
 		default:
