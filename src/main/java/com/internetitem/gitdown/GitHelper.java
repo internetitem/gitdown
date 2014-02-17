@@ -1,5 +1,7 @@
 package com.internetitem.gitdown;
 
+import io.dropwizard.lifecycle.Managed;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
@@ -15,7 +17,6 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import com.internetitem.gitdown.FileData.FileDataType;
 import com.internetitem.gitdown.config.GitDownConfiguration;
-import com.yammer.dropwizard.lifecycle.Managed;
 
 public class GitHelper implements Managed {
 

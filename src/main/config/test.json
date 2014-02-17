@@ -1,11 +1,18 @@
 {
-  "http": {
-    "port": 8080,
-    "rootPath": "/services/*"
-  },
-  "logging": {
-    "file" : {
-      "enabled" : false
+  "server" : {
+    "type": "simple",
+    "applicationContextPath": "/",
+    "adminContextPath": "/admin",
+    "connector": {
+      "type": "http",
+      "port": 8080
     }
-  }
+  },
+ "logging": {
+    "appenders": [
+        "type": "console"
+    ]
+  },
+  "indexFiles": [],
+  "markdownExtensions": []
 }

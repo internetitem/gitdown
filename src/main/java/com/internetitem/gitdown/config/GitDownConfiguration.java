@@ -1,12 +1,12 @@
 package com.internetitem.gitdown.config;
 
+import io.dropwizard.Configuration;
+
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
-
-import com.yammer.dropwizard.config.Configuration;
 
 public class GitDownConfiguration extends Configuration {
 

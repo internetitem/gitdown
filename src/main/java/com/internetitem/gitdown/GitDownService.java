@@ -1,25 +1,28 @@
 package com.internetitem.gitdown;
 
+import io.dropwizard.Application;
+import io.dropwizard.servlets.assets.AssetServlet;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+
+import java.nio.charset.Charset;
+
 import com.internetitem.gitdown.config.GitDownConfiguration;
 import com.internetitem.gitdown.service.GitService;
-import com.yammer.dropwizard.Service;
-import com.yammer.dropwizard.assets.AssetsBundle;
-import com.yammer.dropwizard.config.Bootstrap;
-import com.yammer.dropwizard.config.Environment;
 
-public class GitDownService extends Service<GitDownConfiguration> {
+public class GitDownService extends Application<GitDownConfiguration> {
 
 	@Override
 	public void initialize(Bootstrap<GitDownConfiguration> bootstrap) {
-		bootstrap.addBundle(new AssetsBundle("/assets/", "/assets/", "index.html"));
 	}
 
 	@Override
 	public void run(GitDownConfiguration configuration, Environment environment) throws Exception {
 		GitHelper gitHelper = new GitHelper(configuration);
-		environment.manage(gitHelper);
+		environment.lifecycle().manage(gitHelper);
 		MarkdownHelper markdownHelper = new MarkdownHelper(configuration);
-		environment.addResource(new GitService(gitHelper, markdownHelper));
+		environment.jersey().register(new GitService(gitHelper, markdownHelper));
+		environment.servlets().addServlet("asset-servlet", new AssetServlet("/assets/", "/assets/", "index.html", Charset.forName("UTF-8")));
 	}
 
 }
