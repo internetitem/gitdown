@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 import com.internetitem.gitdown.FileData;
 import com.internetitem.gitdown.GitHelper;
 import com.internetitem.gitdown.MarkdownHelper;
+import com.internetitem.gitdown.view.MarkdownView;
 
 @Path("/")
 public class GitService {
@@ -48,19 +49,18 @@ public class GitService {
 		case IndexFile:
 		default:
 			String actualName = data.getActualName();
-			byte[] bytes;
+			Object returnObject;
 			String contentType;
 			if (markdownHelper.isMarkdown(actualName)) {
-				bytes = markdownHelper.convertMarkdown(data.getData());
+				returnObject = new MarkdownView("Documentation", markdownHelper.convertMarkdown(data.getData()));
 				contentType = "text/html; charset=utf-8";
 			} else {
-				bytes = data.getData();
+				returnObject = data.getData();
 				contentType = getContentType(actualName);
 			}
-			return Response.ok(bytes, contentType).build();
+			return Response.ok(returnObject, contentType).build();
 		}
 	}
-
 
 	private String getContentType(String actualName) {
 		if (actualName.endsWith(".md")) {

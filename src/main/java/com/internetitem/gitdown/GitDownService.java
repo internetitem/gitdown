@@ -4,6 +4,7 @@ import io.dropwizard.Application;
 import io.dropwizard.servlets.assets.AssetServlet;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
 
 import java.nio.charset.Charset;
 
@@ -14,6 +15,7 @@ public class GitDownService extends Application<GitDownConfiguration> {
 
 	@Override
 	public void initialize(Bootstrap<GitDownConfiguration> bootstrap) {
+		bootstrap.addBundle(new ViewBundle());
 	}
 
 	@Override

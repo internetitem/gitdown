@@ -31,12 +31,12 @@ public class MarkdownHelper {
 		return false;
 	}
 
-	public byte[] convertMarkdown(byte[] data) {
+	public String convertMarkdown(byte[] data) {
 		try {
 			PegDownProcessor pdp = getPegDownProcessor();
 			String source = new String(data, "UTF-8");
 			String result = pdp.markdownToHtml(source, LINK_RENDERER);
-			return result.getBytes("UTF-8");
+			return result;
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
