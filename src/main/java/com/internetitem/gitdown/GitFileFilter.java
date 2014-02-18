@@ -9,7 +9,6 @@ public class GitFileFilter extends TreeFilter {
 	private boolean caseSensitive;
 
 	public GitFileFilter(boolean caseSensitive, String path) {
-		System.err.println("Case sensitive: " + caseSensitive);
 		this.caseSensitive = caseSensitive;
 		this.path = path;
 	}
