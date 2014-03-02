@@ -10,9 +10,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.internetitem.gitdown.Constants;
 import com.internetitem.gitdown.FileData;
 import com.internetitem.gitdown.GitHelper;
 import com.internetitem.gitdown.MarkdownHelper;
+import com.internetitem.gitdown.error.FileNotFoundException;
 import com.internetitem.gitdown.view.MarkdownView;
 
 @Path("/")
@@ -42,7 +44,7 @@ public class GitService {
 		FileData data = gitHelper.getData(path);
 		switch (data.getFileDataType()) {
 		case NotFound:
-			return Response.status(Status.NOT_FOUND).build();
+			throw new FileNotFoundException();
 		case Redirect:
 			return Response.status(Status.MOVED_PERMANENTLY).location(new URI(data.getActualName())).build();
 		case File:
@@ -52,14 +54,25 @@ public class GitService {
 			Object returnObject;
 			String contentType;
 			if (markdownHelper.isMarkdown(actualName)) {
-				returnObject = new MarkdownView("Documentation", markdownHelper.convertMarkdown(data.getData()));
-				contentType = "text/html; charset=utf-8";
+				String title = getTitle(data);
+				returnObject = new MarkdownView(servletContext.getContextPath(), title, markdownHelper.convertMarkdown(data.getData()));
+				contentType = Constants.CONTENT_TYPE_HTML;
 			} else {
 				returnObject = data.getData();
 				contentType = getContentType(actualName);
 			}
 			return Response.ok(returnObject, contentType).build();
 		}
+	}
+
+	private String getTitle(FileData data) {
+		String filename = data.getActualName();
+		String extension = markdownHelper.getExtension(filename);
+		if (extension != null) {
+			filename = filename.substring(0, filename.length() - extension.length());
+		}
+		filename = filename.replaceAll("-", " ");
+		return filename;
 	}
 
 	private String getContentType(String actualName) {

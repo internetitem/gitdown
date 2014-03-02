@@ -23,12 +23,16 @@ public class MarkdownHelper {
 	}
 
 	public boolean isMarkdown(String name) {
+		return getExtension(name) != null;
+	}
+
+	public String getExtension(String name) {
 		for (String extension : configuration.getMarkdownExtensions()) {
 			if (name.endsWith(extension)) {
-				return true;
+				return extension;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public String convertMarkdown(byte[] data) {

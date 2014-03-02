@@ -7,6 +7,7 @@ import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
 
 import com.internetitem.gitdown.config.GitDownConfiguration;
+import com.internetitem.gitdown.error.NotFoundExceptionMapper;
 import com.internetitem.gitdown.service.GitService;
 
 public class GitDownService extends Application<GitDownConfiguration> {
@@ -23,6 +24,7 @@ public class GitDownService extends Application<GitDownConfiguration> {
 		environment.lifecycle().manage(gitHelper);
 		MarkdownHelper markdownHelper = new MarkdownHelper(configuration);
 		environment.jersey().register(new GitService(gitHelper, markdownHelper));
+		environment.jersey().register(new NotFoundExceptionMapper());
 	}
 
 }
