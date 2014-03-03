@@ -16,8 +16,17 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 import com.internetitem.gitdown.FileData.FileDataType;
 import com.internetitem.gitdown.config.GitDownConfiguration;
+import com.internetitem.gitdown.config.GitDownFileType;
+import com.internetitem.gitdown.error.FileNotFoundException;
+import com.internetitem.gitdown.handler.FileHandler;
+import com.internetitem.gitdown.handler.StaticFileHandler;
+import com.internetitem.gitdown.handler.markdown.MarkdownHandler;
 
 public class GitHelper implements Managed {
+
+	private static final FileHandler STATIC_HANDLER = new StaticFileHandler();
+
+	private static final FileHandler MARKDOWN_HANDLER = new MarkdownHandler();
 
 	private GitDownConfiguration configuration;
 
@@ -62,44 +71,46 @@ public class GitHelper implements Managed {
 	public FileData getData(String filename) throws Exception {
 		RevTree tree = getTree();
 
-		TreeWalk foundFile;
+		FoundFile foundFile;
 		FileDataType type;
 		if (filename.equals("") || filename.endsWith("/")) {
 			foundFile = findIndexFile(tree, filename);
 			if (foundFile == null) {
-				return new FileData(null, filename, null, FileDataType.NotFound);
+				return FileData.notFound(filename);
 			} else {
-				String matchedFile = foundFile.getPathString();
+				String matchedFile = foundFile.getActualName();
 				String matchedPart = matchedFile.substring(0, filename.length());
 				if (!matchedPart.equals(filename)) {
-					return new FileData(null, filename, matchedPart, FileDataType.Redirect);
+					return FileData.redirect(filename, matchedPart);
 				} else {
 					type = FileDataType.IndexFile;
 				}
 			}
 		} else {
-			foundFile = findFile(tree, filename);
+			foundFile = findFile(tree, filename, null, null);
 			if (foundFile != null) {
-				String matchedFile = foundFile.getPathString();
+				String matchedFile = foundFile.getActualName();
 				// This is how we check if something is a directory
 				if (matchedFile.length() > filename.length() && matchedFile.charAt(filename.length()) == '/') {
-					return new FileData(null, filename, filename + "/", FileDataType.Redirect);
+					return FileData.redirect(filename, filename + "/");
 				} else if (!matchedFile.equals(filename)) {
-					return new FileData(null, filename, matchedFile, FileDataType.Redirect);
+					return FileData.redirect(filename, matchedFile);
 				} else {
 					type = FileDataType.File;
 				}
 			} else {
-				for (String extension : configuration.getMarkdownExtensions()) {
-					String newName = filename + extension;
-					foundFile = findFile(tree, newName);
-					if (foundFile != null) {
-						String actualName = foundFile.getPathString();
-						if (!actualName.equals(newName)) {
-							String redirectTo = actualName.substring(0, actualName.length() - extension.length());
-							return new FileData(null, filename, redirectTo, FileDataType.Redirect);
+				for (GitDownFileType fileType : configuration.getRenderSettings().getFileTypes()) {
+					for (String extension : fileType.getExtensions()) {
+						String newName = filename + extension;
+						foundFile = findFile(tree, newName, fileType, extension);
+						if (foundFile != null) {
+							String actualName = foundFile.getActualName();
+							if (!actualName.equals(newName)) {
+								String redirectTo = actualName.substring(0, actualName.length() - extension.length());
+								return FileData.redirect(filename, redirectTo);
+							}
+							break;
 						}
-						break;
 					}
 				}
 
@@ -109,41 +120,88 @@ public class GitHelper implements Managed {
 					String newName = filename + "/";
 					foundFile = findIndexFile(tree, newName);
 					if (foundFile == null) {
-						return new FileData(null, filename, newName, FileDataType.NotFound);
+						return FileData.notFound(filename);
 					} else {
-						return new FileData(null, filename, newName, FileDataType.Redirect);
+						return FileData.redirect(filename, newName);
 					}
 				}
 			}
 		}
 
-		String actualName = foundFile.getPathString();
-		ObjectId objectId = foundFile.getObjectId(0);
+		String actualName = foundFile.getActualName();
+		ObjectId objectId = foundFile.getTreeWalk().getObjectId(0);
 
 		ObjectLoader loader = repository.open(objectId);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		loader.copyTo(bos);
 		byte[] data = bos.toByteArray();
-		return new FileData(data, filename, actualName, type);
+		return new FileData(data, foundFile.getExtension(), getHandler(foundFile.getHandlerName()), filename, actualName, type);
 	}
 
-	private TreeWalk findFile(RevTree tree, String filename) throws Exception {
+	private FileHandler getHandler(String handlerName) throws FileNotFoundException {
+		if (handlerName.equals(Constants.HANDLER_DEFAULT)) {
+			return STATIC_HANDLER;
+		} else if (handlerName.equals(Constants.HANDLER_MARKDOWN)) {
+			return MARKDOWN_HANDLER;
+		} else {
+			throw new FileNotFoundException();
+		}
+	}
+
+	private FoundFile findFile(RevTree tree, String filename, GitDownFileType fileType, String extension) throws Exception {
+		TreeWalk treeWalk = findFileInGit(tree, filename);
+		if (treeWalk == null) {
+			return null;
+		}
+		if (fileType == null) {
+			OUTER: for (GitDownFileType checkFileType : configuration.getRenderSettings().getFileTypes()) {
+				for (String checkExtension : checkFileType.getExtensions()) {
+					if (extensionMatches(filename, checkExtension)) {
+						fileType = checkFileType;
+						extension = checkExtension;
+						break OUTER;
+					}
+				}
+			}
+		}
+
+		if (fileType == null) {
+			return new FoundFile(treeWalk, filename, null, Constants.HANDLER_DEFAULT);
+		} else {
+			return new FoundFile(treeWalk, filename, extension, fileType.getHandler());
+		}
+	}
+
+	private boolean extensionMatches(String filename, String extension) {
+		if (configuration.getRenderSettings().isCaseSensitive()) {
+			if (filename.toLowerCase().endsWith(extension.toLowerCase())) {
+				return true;
+			}
+		} else {
+			if (filename.endsWith(extension)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private TreeWalk findFileInGit(RevTree tree, String filename) throws Exception {
 		TreeWalk treeWalk = new TreeWalk(repository);
 		treeWalk.addTree(tree);
 		treeWalk.setRecursive(true);
-		treeWalk.setFilter(new GitFileFilter(configuration.isCaseSensitive(), filename));
+		treeWalk.setFilter(new GitFileFilter(configuration.getRenderSettings().isCaseSensitive(), filename));
 		if (!treeWalk.next()) {
 			return null;
 		}
 		return treeWalk;
 	}
 
-	private TreeWalk findIndexFile(RevTree tree, String filename) throws Exception {
-		for (String indexName : configuration.getIndexFiles()) {
+	private FoundFile findIndexFile(RevTree tree, String filename) throws Exception {
+		for (String indexName : configuration.getRenderSettings().getIndexFiles()) {
 			String newName = filename + indexName;
-			TreeWalk walk = findFile(tree, newName);
-			if (walk != null) {
-				return walk;
+			FoundFile foundFile = findFile(tree, newName, null, null);
+			if (foundFile != null) {
+				return foundFile;
 			}
 		}
 		return null;

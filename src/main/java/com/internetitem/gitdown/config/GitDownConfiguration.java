@@ -1,10 +1,8 @@
 package com.internetitem.gitdown.config;
 
-import io.dropwizard.Configuration;
-
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
+
+import io.dropwizard.Configuration;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -17,12 +15,9 @@ public class GitDownConfiguration extends Configuration {
 	private String repoPath;
 
 	@NotNull
-	private List<String> indexFiles;
+	private GitDownSettings renderSettings;
 
-	@NotEmpty
-	private List<String> markdownExtensions;
-	
-	private boolean caseSensitive;
+	private String[] settingOrder;
 
 	public String getRepoPath() {
 		return repoPath;
@@ -32,15 +27,11 @@ public class GitDownConfiguration extends Configuration {
 		return branch;
 	}
 
-	public List<String> getIndexFiles() {
-		return indexFiles;
+	public GitDownSettings getRenderSettings() {
+		return renderSettings;
 	}
 
-	public List<String> getMarkdownExtensions() {
-		return markdownExtensions;
-	}
-
-	public boolean isCaseSensitive() {
-		return caseSensitive;
+	public String[] getSettingOrder() {
+		return settingOrder;
 	}
 }

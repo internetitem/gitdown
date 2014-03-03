@@ -6,4 +6,8 @@ public class Constants {
 	public static final String CONTENT_TYPE_HTML = MediaType.TEXT_HTML + "; charset=utf-8";
 
 	public static final String TEMPLATE_NOT_FOUND = "404.ftl";
+
+	public static final String HANDLER_DEFAULT = "default";
+
+	public static final Object HANDLER_MARKDOWN = "markdown";
 }

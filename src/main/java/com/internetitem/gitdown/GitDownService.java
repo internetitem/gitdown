@@ -22,8 +22,7 @@ public class GitDownService extends Application<GitDownConfiguration> {
 	public void run(GitDownConfiguration configuration, Environment environment) throws Exception {
 		GitHelper gitHelper = new GitHelper(configuration);
 		environment.lifecycle().manage(gitHelper);
-		MarkdownHelper markdownHelper = new MarkdownHelper(configuration);
-		environment.jersey().register(new GitService(gitHelper, markdownHelper));
+		environment.jersey().register(new GitService(gitHelper));
 		environment.jersey().register(new NotFoundExceptionMapper());
 	}
 

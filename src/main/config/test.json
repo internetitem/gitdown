@@ -13,6 +13,14 @@
         "type": "console"
     ]
   },
-  "indexFiles": [],
-  "markdownExtensions": []
+  "renderSettings": {
+    "caseSensitive": false,
+    "indexFiles": ["Home.md"],
+    "fileTypes": [
+      {
+        "extensions": [".md"],
+        "handler": "markdown"
+      }
+    ]
+  }
 }

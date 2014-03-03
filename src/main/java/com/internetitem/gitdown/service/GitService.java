@@ -10,12 +10,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.internetitem.gitdown.Constants;
 import com.internetitem.gitdown.FileData;
 import com.internetitem.gitdown.GitHelper;
-import com.internetitem.gitdown.MarkdownHelper;
 import com.internetitem.gitdown.error.FileNotFoundException;
-import com.internetitem.gitdown.view.MarkdownView;
+import com.internetitem.gitdown.handler.FileHandler;
 
 @Path("/")
 public class GitService {
@@ -25,11 +23,8 @@ public class GitService {
 
 	private GitHelper gitHelper;
 
-	private MarkdownHelper markdownHelper;
-
-	public GitService(GitHelper gitHelper, MarkdownHelper markdownHelper) {
+	public GitService(GitHelper gitHelper) {
 		this.gitHelper = gitHelper;
-		this.markdownHelper = markdownHelper;
 	}
 
 	@GET
@@ -50,36 +45,8 @@ public class GitService {
 		case File:
 		case IndexFile:
 		default:
-			String actualName = data.getActualName();
-			Object returnObject;
-			String contentType;
-			if (markdownHelper.isMarkdown(actualName)) {
-				String title = getTitle(data);
-				returnObject = new MarkdownView(servletContext.getContextPath(), title, markdownHelper.convertMarkdown(data.getData()));
-				contentType = Constants.CONTENT_TYPE_HTML;
-			} else {
-				returnObject = data.getData();
-				contentType = getContentType(actualName);
-			}
-			return Response.ok(returnObject, contentType).build();
-		}
-	}
-
-	private String getTitle(FileData data) {
-		String filename = data.getActualName();
-		String extension = markdownHelper.getExtension(filename);
-		if (extension != null) {
-			filename = filename.substring(0, filename.length() - extension.length());
-		}
-		filename = filename.replaceAll("-", " ");
-		return filename;
-	}
-
-	private String getContentType(String actualName) {
-		if (actualName.endsWith(".md")) {
-			return "text/html";
-		} else {
-			return servletContext.getMimeType(actualName);
+			FileHandler handler = data.getHandler();
+			return handler.handleFile(servletContext, data);
 		}
 	}
 
