@@ -22,22 +22,22 @@
 		<dependency>
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-core</artifactId>
-			<version>0.7.0-SNAPSHOT</version>
+			<version>${dropwizard.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-views</artifactId>
-			<version>0.7.0-SNAPSHOT</version>
+			<version>${dropwizard.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-views-freemarker</artifactId>
-			<version>0.7.0-SNAPSHOT</version>
+			<version>${dropwizard.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-assets</artifactId>
-			<version>0.7.0-SNAPSHOT</version>
+			<version>${dropwizard.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -45,6 +45,7 @@
 		<!-- use UTF-8 for everything -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<dropwizard.version>0.7.0</dropwizard.version>
 	</properties>
 
 	<build>
