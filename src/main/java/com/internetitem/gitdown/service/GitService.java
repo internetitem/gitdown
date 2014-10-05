@@ -28,13 +28,12 @@ public class GitService {
 	}
 
 	@GET
-	@Path("")
 	public Response serveFile() throws Exception {
 		return serveFile("");
 	}
 
 	@GET
-	@Path("{page: .+}")
+	@Path("/{page: .+}")
 	public Response serveFile(@PathParam("page") String path) throws Exception {
 		FileData data = gitHelper.getData(path);
 		switch (data.getFileDataType()) {
