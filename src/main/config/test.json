@@ -1,26 +1,29 @@
 {
-  "server" : {
-    "type": "simple",
-    "applicationContextPath": "/",
-    "adminContextPath": "/admin",
-    "connector": {
-      "type": "http",
-      "port": 8080
-    }
-  },
- "logging": {
-    "appenders": [
-        "type": "console"
-    ]
-  },
-  "renderSettings": {
-    "caseSensitive": false,
-    "indexFiles": ["Home.md"],
-    "fileTypes": [
-      {
-        "extensions": [".md"],
-        "handler": "markdown"
-      }
-    ]
-  }
+    "server": {
+        "type": "simple",
+        "applicationContextPath": "/",
+        "adminContextPath": "/admin",
+        "connector": {
+            "type": "http",
+            "port": 8080
+        }
+    },
+    "logging": {
+        "appenders": [
+            {
+                "type": "console"
+            }
+        ]
+    },
+    "renderSettings": {
+        "caseSensitive": false,
+        "indexFiles": ["Home.md"],
+        "fileTypes": [
+            {
+                "extensions": [".md"],
+                "handler": "markdown"
+            }
+        ]
+    },
+    "branch": "master"
 }
